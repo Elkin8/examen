@@ -1,0 +1,14 @@
+{
+  "name": "ExamenIonic",
+  "integrations": {},
+  "type": "react",
+  "server": {
+    "proxy": {
+      "/api/examen.php": {
+        "target": "https://puce.estudioika.com",
+        "changeOrigin": true,
+        "secure": false
+      }
+    }
+  }
+}
