@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { login, SysUser } from '../../../ExamenIonic/src/api/examen';
+import { login, SysUser } from '../api/examen';
 
 type AuthState = {
   user: SysUser | null;

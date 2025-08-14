@@ -1,31 +1,39 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencias
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Salidas de compilación
+dist/
+build/
 
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
+# Configuración local / entornos
+.env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-/.nx
-/.nx/cache
-/.vscode/*
-!/.vscode/extensions.json
-.idea
+.env.*.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Ionic
+.ionic/
 
-# Optional eslint cache
-.eslintcache
+# Capacitor
+# Ignora los binarios y archivos generados al sincronizar
+ios/
+# ⚠️ Descomenta esta línea si NO quieres versionar el código nativo de Android
+# android/
+
+# Android Studio / Gradle
+*.iml
+.gradle/
+local.properties
+.idea/
+*.log
+captures/
+outputs/
+
+# Archivos temporales de sistema
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/

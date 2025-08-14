@@ -1,154 +1,334 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useState, useEffect } from 'react';
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
-  IonItem, IonInput, IonButton, IonText, IonCard, IonCardHeader, IonCardTitle, IonCardContent
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+  IonAlert,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonButtons,
+  IonIcon,
+  IonBadge,
+  IonNote,
+  IonAvatar,
+  IonChip
 } from '@ionic/react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { 
+  logOutOutline, 
+  personCircleOutline, 
+  mailOutline, 
+  idCardOutline,
+  checkmarkCircleOutline,
+  shieldCheckmarkOutline,
+  refreshOutline
+} from 'ionicons/icons';
 import { useAuth } from '../../context/AuthContext';
-import { registerAttendance } from '../../../../ExamenIonic/src/api/examen';
+import { registerAttendance } from '../../api/examen';
+import AttendanceList from '../../components/AttendanceList';
 import { useHistory } from 'react-router';
-
-function pickTwoPositions(len: number): [number, number] {
-  const a = Math.floor(Math.random() * len) + 1;
-  let b = Math.floor(Math.random() * len) + 1;
-  while (b === a) b = Math.floor(Math.random() * len) + 1;
-  return a < b ? [a, b] : [b, a];
-}
+import './Home.css';
 
 const Home: React.FC = () => {
   const { user, logout } = useAuth();
   const history = useHistory();
-
-  const [identification, setIdentification] = useState('');
-  const [positions, setPositions] = useState<[number, number] | null>(null);
-
-  const [digitA, setDigitA] = useState('');
-  const [digitB, setDigitB] = useState('');
-
-  const [status, setStatus] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
+  const [userInputs, setUserInputs] = useState<string[]>(['', '']);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertHeader, setAlertHeader] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (!user) history.replace('/login');
-  }, [user, history]);
-
-  const canGenerateChallenge = useMemo(() => identification.trim().length >= 6, [identification]);
-
-  const generateChallenge = () => {
-    setStatus(null);
-    setError(null);
-    if (!canGenerateChallenge) {
-      setError('Ingresa una identificación válida (mínimo 6 dígitos).');
-      return;
+    if (user && user.id) {
+      generateRandomNumbers(user.id);
     }
-    setPositions(pickTwoPositions(identification.length));
-    setDigitA('');
-    setDigitB('');
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) {
+        await logout();
+      }
+      history.replace('/login');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const onRegister = async () => {
-    if (!user || !positions) return;
-    setError(null);
-    setStatus(null);
+  const generateRandomNumbers = (userId: string) => {
+    if (!userId) return;
 
-    const [p1, p2] = positions;
-
-    const realA = identification[p1 - 1];
-    const realB = identification[p2 - 1];
-    if (digitA !== realA || digitB !== realB) {
-      setError('Los dígitos no coinciden con la identificación.');
+    const idLength = userId.length;
+    if (idLength < 2) {
+      setAlertHeader('Error');
+      setAlertMessage('El ID debe tener al menos 2 dígitos');
+      setShowAlert(true);
       return;
     }
 
-    const join_user = `${digitA}${digitB}`;
+    const position1 = Math.floor(Math.random() * idLength);
+    let position2 = Math.floor(Math.random() * idLength);
+
+    while (position2 === position1 && idLength > 1) {
+      position2 = Math.floor(Math.random() * idLength);
+    }
+
+    setRandomNumbers([position1, position2]);
+  };
+
+  const handleInputChange = (index: number, value: string) => {
+    const newInputs = [...userInputs];
+    newInputs[index] = value.replace(/[^0-9]/g, ''); // Solo números
+    setUserInputs(newInputs);
+  };
+
+  const validateInputs = (): boolean => {
+    if (!user || randomNumbers.length !== 2) return false;
+
+    for (let i = 0; i < 2; i++) {
+      const expectedDigit = user.id[randomNumbers[i]];
+      if (userInputs[i] !== expectedDigit) {
+        setAlertHeader('Error de Validación');
+        setAlertMessage(`El dígito en la posición ${randomNumbers[i] + 1} es incorrecto`);
+        setShowAlert(true);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const registerAttendanceHandler = async () => {
+    if (!validateInputs()) return;
+    setIsLoading(true);
 
     try {
-      const resp = await registerAttendance(user.record, join_user);
-      setStatus(resp.message ?? 'Asistencia registrada');
-    } catch (e: any) {
-      setError(e.message ?? 'No se pudo registrar la asistencia.');
+      await registerAttendance(user!.record, userInputs.join(''));
+      setAlertHeader('¡Perfecto!');
+      setAlertMessage('Asistencia registrada correctamente');
+      setShowAlert(true);
+
+      setUserInputs(['', '']);
+      generateRandomNumbers(user!.id);
+      setRefreshKey(k => k + 1);
+    } catch (error) {
+      setAlertHeader('Error');
+      setAlertMessage(error.message || 'Error al registrar asistencia');
+      setShowAlert(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (!user) return null;
+  const generateNewChallenge = () => {
+    if (user?.id) {
+      generateRandomNumbers(user.id);
+      setUserInputs(['', '']);
+    }
+  };
+
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getCurrentDate = () => {
+    return new Date().toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (!user) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Registro de Asistencia</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setConfirmLogout(true)} fill="clear">
+                <IonIcon slot="start" icon={logOutOutline} />
+                Salir
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <div className="error-state">
+            <IonIcon icon={personCircleOutline} size="large" color="medium" />
+            <IonText color="danger">
+              <h2>Sin datos de usuario</h2>
+              <p>No se encontraron datos de usuario. Por favor, inicia sesión nuevamente.</p>
+            </IonText>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar>
-          <IonTitle>Registrar asistencia</IonTitle>
+          <IonTitle>Panel de Asistencia</IonTitle>
+          <IonButtons slot="end">
+            <IonButton 
+              onClick={() => setConfirmLogout(true)} 
+              fill="clear" 
+              color="primary" 
+              className="logout-btn"
+            >
+              <IonIcon slot="start" icon={logOutOutline} />
+              Salir
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Hola, {user.names} {user.lastnames}</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <IonItem>
-              <IonInput
-                type="text"
-                inputmode="numeric"
-                label="Número de identificación"
-                labelPlacement="stacked"
-                value={identification}
-                onIonChange={e => setIdentification((e.detail.value ?? '').replace(/\D/g, ''))}
-                placeholder="Ingresa tu cédula/ID"
-              />
-            </IonItem>
-            <IonButton
-              className="ion-margin-top"
-              expand="block"
-              onClick={generateChallenge}
-              disabled={!canGenerateChallenge}
-            >
-              Generar desafío (2 dígitos)
-            </IonButton>
 
-            {positions && (
-              <>
-                <IonText className="ion-margin-top" color="primary">
-                  Ingresa el dígito de la posición <b>{positions[0]}</b> y el de la posición <b>{positions[1]}</b> de tu identificación.
+      <IonContent fullscreen className="home-content">
+        <div className="user-welcome">
+          <div className="welcome-content">
+            <IonAvatar className="user-avatar">
+              <IonIcon icon={personCircleOutline} />
+            </IonAvatar>
+            <div className="welcome-text">
+              <h1>¡Hola, {user.names?.split(' ')[0]}!</h1>
+              <p>{getCurrentDate()}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="content-container">
+          {/* Tarjeta de verificación */}
+          <IonCard className="verification-card">
+            <IonCardHeader>
+              <IonCardTitle>
+                <IonIcon icon={shieldCheckmarkOutline} />
+                Registro de Asistencia
+              </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <div className="verification-intro">
+                <IonText color="medium">
+                  <p>Ingresa los dígitos solicitados de tu número de identificación:</p>
                 </IonText>
-                <IonItem className="ion-margin-top">
-                  <IonInput
-                    type="text"
-                    inputmode="numeric"
-                    maxlength={1}
-                    label={`Dígito pos ${positions[0]}`}
-                    labelPlacement="stacked"
-                    value={digitA}
-                    onIonChange={e => setDigitA((e.detail.value ?? '').replace(/\D/g, '').slice(0, 1))}
-                  />
-                </IonItem>
-                <IonItem>
-                  <IonInput
-                    type="text"
-                    inputmode="numeric"
-                    maxlength={1}
-                    label={`Dígito pos ${positions[1]}`}
-                    labelPlacement="stacked"
-                    value={digitB}
-                    onIonChange={e => setDigitB((e.detail.value ?? '').replace(/\D/g, '').slice(0, 1))}
-                  />
-                </IonItem>
+              </div>
 
-                <IonButton className="ion-margin-top" expand="block" onClick={onRegister} disabled={!digitA || !digitB}>
-                  Registrar asistencia
+              {randomNumbers.length === 2 && (
+                <div className="verification-inputs">
+                  <IonGrid>
+                    <IonRow>
+                      <IonCol>
+                        <div className="input-group">
+                          <IonLabel>Posición {randomNumbers[0] + 1}</IonLabel>
+                          <IonItem className="verification-input">
+                            <IonInput
+                              type="tel"
+                              maxlength={1}
+                              value={userInputs[0]}
+                              onIonInput={(e) => handleInputChange(0, e.detail.value!)}
+                              placeholder="?"
+                              className="digit-input"
+                            />
+                          </IonItem>
+                        </div>
+                      </IonCol>
+                      <IonCol>
+                        <div className="input-group">
+                          <IonLabel>Posición {randomNumbers[1] + 1}</IonLabel>
+                          <IonItem className="verification-input">
+                            <IonInput
+                              type="tel"
+                              maxlength={1}
+                              value={userInputs[1]}
+                              onIonInput={(e) => handleInputChange(1, e.detail.value!)}
+                              placeholder="?"
+                              className="digit-input"
+                            />
+                          </IonItem>
+                        </div>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </div>
+              )}
+
+              <div className="verification-actions">
+                <IonButton
+                  expand="block"
+                  onClick={registerAttendanceHandler}
+                  disabled={isLoading || userInputs.some(input => input === '')}
+                  className="register-btn"
+                  color="success"
+                >
+                  {isLoading ? (
+                    <>
+                      <IonSpinner name="crescent" />
+                      <span style={{ marginLeft: '8px' }}>Registrando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <IonIcon icon={checkmarkCircleOutline} slot="start" />
+                      Registrar Asistencia
+                    </>
+                  )}
                 </IonButton>
-              </>
-            )}
+              </div>
+            </IonCardContent>
+          </IonCard>
 
-            {status && <IonText color="success" className="ion-margin-top">{status}</IonText>}
-            {error && <IonText color="danger" className="ion-margin-top">{error}</IonText>}
+          <AttendanceList refreshTrigger={refreshKey} />
+        </div>
 
-            <IonButton fill="outline" color="medium" className="ion-margin-top" expand="block" onClick={() => history.push('/attendance/list')}>
-              Ver mi asistencia
-            </IonButton>
-            <IonButton fill="clear" color="danger" className="ion-margin-top" expand="block" onClick={logout}>
-              Cerrar sesión
-            </IonButton>
-          </IonCardContent>
-        </IonCard>
+        {/* Alerts */}
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header={alertHeader}
+          message={alertMessage}
+          buttons={['Entendido']}
+          cssClass={alertHeader === '¡Perfecto!' ? 'success-alert' : ''}
+        />
+
+        <IonAlert
+          isOpen={confirmLogout}
+          header="Cerrar sesión"
+          message="¿Seguro que quieres salir de tu cuenta?"
+          buttons={[
+            { 
+              text: 'Cancelar', 
+              role: 'cancel', 
+              handler: () => setConfirmLogout(false),
+              cssClass: 'alert-cancel'
+            },
+            { 
+              text: 'Salir', 
+              role: 'destructive', 
+              handler: handleLogout,
+              cssClass: 'alert-confirm'
+            }
+          ]}
+          onDidDismiss={() => setConfirmLogout(false)}
+        />
       </IonContent>
     </IonPage>
   );

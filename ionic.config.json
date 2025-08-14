@@ -1,14 +1,13 @@
 {
   "name": "ExamenIonic",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react",
-  "server": {
-    "proxy": {
-      "/api/examen.php": {
-        "target": "https://puce.estudioika.com",
-        "changeOrigin": true,
-        "secure": false
-      }
+  "proxies": [
+    {
+      "path": "/ika",
+      "proxyUrl": "https://puce.estudioika.com/api"
     }
-  }
+  ]
 }

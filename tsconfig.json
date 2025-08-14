@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["vitest", "node", "jest"],
     "target": "es5",
     "lib": [
       "dom",

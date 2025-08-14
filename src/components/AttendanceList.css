@@ -1,0 +1,340 @@
+/* AttendanceList.css */
+
+.attendance-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(255, 255, 255, 0.95) 100%);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.attendance-card ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1e293b;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.attendance-card ion-card-title ion-icon {
+  font-size: 24px;
+  color: #3b82f6;
+}
+
+.count-badge {
+  margin-left: auto;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Estados de carga, error y vacío */
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 16px;
+}
+
+.loading-state ion-spinner {
+  --color: #3b82f6;
+}
+
+.error-state ion-icon,
+.empty-state ion-icon {
+  font-size: 48px;
+  opacity: 0.6;
+}
+
+.error-state h3,
+.empty-state h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #475569;
+}
+
+.error-state p,
+.empty-state p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Resumen de asistencia */
+.attendance-summary {
+  background: rgba(248, 250, 252, 0.6);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  justify-content: center;
+}
+
+.summary-item ion-icon {
+  font-size: 24px;
+}
+
+.summary-item h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.summary-item ion-note {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Lista de asistencias */
+.attendance-list {
+  border-radius: 12px;
+  background: transparent;
+  margin-bottom: 20px;
+}
+
+.attendance-item {
+  --background: rgba(248, 250, 252, 0.4);
+  --border-width: 0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  transition: all 0.3s ease;
+}
+
+.attendance-item:hover {
+  --background: rgba(248, 250, 252, 0.8);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.attendance-content {
+  width: 100%;
+  padding: 12px 0;
+}
+
+.attendance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.date-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-section ion-icon {
+  font-size: 18px;
+}
+
+.date-text {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+.time-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.time-badge ion-icon {
+  font-size: 14px;
+}
+
+.attendance-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 26px; /* Alinear con el icono */
+}
+
+.attendance-details ion-note {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.record-id {
+  font-weight: 500;
+  color: #94a3b8 !important;
+}
+
+.chevron-icon {
+  font-size: 18px;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.attendance-item:hover .chevron-icon {
+  opacity: 1;
+}
+
+/* Sección de actualización */
+.update-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.update-btn {
+  --border-width: 2px;
+  --border-color: #e2e8f0;
+  --color: #475569;
+  --border-radius: 12px;
+  height: 44px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.update-btn:hover {
+  --border-color: #3b82f6;
+  --color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+/* Colores para badges de tiempo */
+ion-badge[color="success"] {
+  --background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --color: white;
+}
+
+ion-badge[color="warning"] {
+  --background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --color: white;
+}
+
+ion-badge[color="danger"] {
+  --background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --color: white;
+}
+
+/* Opciones de deslizamiento */
+ion-item-option {
+  --background: rgba(248, 250, 252, 0.95);
+  --color: #475569;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+ion-item-option ion-icon {
+  font-size: 20px;
+}
+
+/* Animaciones */
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.attendance-item {
+  animation: slideInUp 0.4s ease-out;
+  animation-fill-mode: both;
+}
+
+.attendance-item:nth-child(1) { animation-delay: 0.1s; }
+.attendance-item:nth-child(2) { animation-delay: 0.2s; }
+.attendance-item:nth-child(3) { animation-delay: 0.3s; }
+.attendance-item:nth-child(4) { animation-delay: 0.4s; }
+.attendance-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .attendance-summary {
+    padding: 16px;
+  }
+  
+  .summary-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .summary-item h3 {
+    font-size: 1.3rem;
+  }
+  
+  .attendance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .time-badge {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-content {
+    padding: 10px 0;
+  }
+  
+  .attendance-details {
+    padding-left: 0;
+    margin-top: 8px;
+  }
+  
+  .date-text {
+    font-size: 0.9rem;
+  }
+  
+  .attendance-details ion-note {
+    font-size: 0.75rem;
+  }
+}
+
+/* Mejoras para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .attendance-card {
+    --background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(51, 65, 85, 0.6);
+  }
+  
+  .attendance-summary {
+    background: rgba(30, 41, 59, 0.4);
+    border-color: rgba(51, 65, 85, 0.6);
+  }
+  
+  .attendance-item {
+    --background: rgba(30, 41, 59, 0.3);
+    border-color: rgba(51, 65, 85, 0.4);
+  }
+  
+  .attendance-item:hover {
+    --background: rgba(30, 41, 59, 0.6);
+  }
+}

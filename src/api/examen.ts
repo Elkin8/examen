@@ -1,49 +1,67 @@
-const BASE_URL = '/api/examen.php';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Capacitor } from '@capacitor/core'
+import { CapacitorHttp } from '@capacitor/core'
 
-export type SysUser = {
-  record: number;
-  id: number;
-  lastnames: string;
-  names: string;
-  mail: string;
-  phone: string;
-  user: string;
-};
+const BASE_URL = Capacitor.isNativePlatform()
+  ? 'https://puce.estudioika.com/api/examen.php'
+  : '/ika/examen.php'
 
-export type LoginResponse = SysUser[];
+type Json = Record<string, any> | Array<any>
 
-export async function login(user: string, pass: string): Promise<SysUser | null> {
-  const url = `${BASE_URL}?user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
-  const res = await fetch(url, { method: 'GET' });
-  if (!res.ok) throw new Error(`Login failed: ${res.status}`);
-  const data: LoginResponse = await res.json();
-  return data.length ? data[0] : null;
+async function httpGet(url: string, params?: Record<string, string>) {
+  if (Capacitor.isNativePlatform()) {
+    const { data, status } = await CapacitorHttp.get({ url, params })
+    if (status < 200 || status >= 300) throw new Error(`HTTP ${status}`)
+    return data as Json
+  }
+  const q = params
+    ? `${url}${url.includes('?') ? '&' : '?'}${new URLSearchParams(params)}`
+    : url
+  const res = await fetch(q, { method: 'GET', headers: { Accept: 'application/json' }, cache: 'no-store' })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${text.slice(0, 120)}`)
+  try { return JSON.parse(text) } catch { throw new Error(`Respuesta no-JSON: ${text.slice(0, 200)}`) }
 }
 
-// Registrar asistencia
-export async function registerAttendance(record_user: number, join_user: string): Promise<{ message?: string; error?: string }> {
-  const res = await fetch(BASE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ record_user, join_user })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error ?? 'Error al registrar asistencia');
-  return data;
+async function httpPost(url: string, body: Json) {
+  if (Capacitor.isNativePlatform()) {
+    const { data, status } = await CapacitorHttp.post({ url, data: body, headers: { 'Content-Type': 'application/json' } })
+    if (status < 200 || status >= 300) throw new Error(data?.error ?? `HTTP ${status}`)
+    return data as Json
+  }
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${text.slice(0, 120)}`)
+  try { return JSON.parse(text) } catch { throw new Error(`Respuesta no-JSON: ${text.slice(0, 200)}`) }
 }
 
-// Listar asistencia por usuario)
+export type SysUser = { record: number; id: number; lastnames: string; names: string; mail: string; phone: string; user: string; }
+
+export async function login(user: string, pass: string) {
+  const data = await httpGet(BASE_URL, { user, pass })
+  return Array.isArray(data) && data.length ? (data[0] as SysUser) : null
+}
+
+export async function registerAttendance(record_user: number, join_user: string) {
+  return httpPost(Capacitor.isNativePlatform() ? 'https://puce.estudioika.com/api/examen.php' : '/ika/examen.php', { record_user, join_user })
+}
+
 export type AttendanceItem = {
-  record_user: number;
+  record: number;
   date: string;
   time: string;
-  join_user: string;
+  join_date: string;
 };
 
 export async function listAttendance(record_user: number): Promise<AttendanceItem[]> {
-  const url = `${BASE_URL}?record=${encodeURIComponent(String(record_user))}`;
-  const res = await fetch(url, { method: 'GET' });
-  if (!res.ok) throw new Error(`Error listando asistencia: ${res.status}`);
-  const data = await res.json();
-  return Array.isArray(data) ? data as AttendanceItem[] : [];
+  const data = await httpGet(BASE_URL, { record: String(record_user) });
+  const arr = Array.isArray(data) ? (data as any[]) : [];
+  return arr
+    .map(d => ({
+      record: Number(d.record),
+      date: String(d.date),
+      time: String(d.time),
+      join_date: String(d.join_date),
+    }))
+    .sort((a, b) => (a.join_date < b.join_date ? 1 : -1));
 }
