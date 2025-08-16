@@ -45,18 +45,26 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
   const [error, setError] = useState<string | null>(null);
 
   const loadAttendance = async () => {
-    if (!user) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await listAttendance(user.record);
-      setItems(data);
-    } catch (e) {
-      setError(e?.message ?? 'No se pudo cargar la asistencia');
-    } finally {
-      setIsLoading(false);
+  if (!user) return;
+  setIsLoading(true);
+  setError(null);
+  try {
+    console.log("Fetching attendance...");
+    const data = await listAttendance(user.record);
+    console.log("Data received:", data);
+    setItems(data);
+  } catch (e: unknown) {
+    console.error(e);
+    if (e instanceof Error) {
+      setError(e.message);
+    } else {
+      setError('No se pudo cargar la asistencia');
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   useEffect(() => {
     loadAttendance();
@@ -93,13 +101,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
     <IonCard className="attendance-card">
       <IonCardHeader>
         <IonCardTitle>
-          <IonIcon icon={listOutline} />
           Historial de Asistencia
-          {items.length > 0 && (
-            <IonBadge color="primary" className="count-badge">
-              {items.length}
-            </IonBadge>
-          )}
         </IonCardTitle>
       </IonCardHeader>
       
@@ -143,35 +145,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
 
         {!isLoading && !error && items.length > 0 && (
           <>
-            <div className="attendance-summary">
-              <IonGrid>
-                <IonRow>
-                  <IonCol>
-                    <div className="summary-item">
-                      <IonIcon icon={checkmarkCircleOutline} color="success" />
-                      <div>
-                        <IonText color="success">
-                          <h3>{items.length}</h3>
-                        </IonText>
-                        <IonNote>Registros totales</IonNote>
-                      </div>
-                    </div>
-                  </IonCol>
-                  <IonCol>
-                    <div className="summary-item">
-                      <IonIcon icon={calendarOutline} color="primary" />
-                      <div>
-                        <IonText color="primary">
-                          <h3>{new Set(items.map(item => item.date)).size}</h3>
-                        </IonText>
-                        <IonNote>Días únicos</IonNote>
-                      </div>
-                    </div>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </div>
-
             <IonList className="attendance-list">
               {items.map((item) => (
                 <IonItemSliding key={item.record}>

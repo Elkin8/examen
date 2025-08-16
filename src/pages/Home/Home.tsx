@@ -55,10 +55,11 @@ const Home: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (user && user.id) {
-      generateRandomNumbers(user.id);
-    }
-  }, [user]);
+  if (user && user.id) {
+    generateRandomNumbers(user.id.toString());
+  }
+}, [user]);
+
 
   const handleLogout = async () => {
     try {
@@ -99,48 +100,58 @@ const Home: React.FC = () => {
   };
 
   const validateInputs = (): boolean => {
-    if (!user || randomNumbers.length !== 2) return false;
+  if (!user || randomNumbers.length !== 2) return false;
 
-    for (let i = 0; i < 2; i++) {
-      const expectedDigit = user.id[randomNumbers[i]];
-      if (userInputs[i] !== expectedDigit) {
-        setAlertHeader('Error de Validación');
-        setAlertMessage(`El dígito en la posición ${randomNumbers[i] + 1} es incorrecto`);
-        setShowAlert(true);
-        return false;
-      }
+  const userIdStr = user.id.toString(); // <-- convertimos a string
+
+  for (let i = 0; i < 2; i++) {
+    const expectedDigit = userIdStr[randomNumbers[i]];
+    if (userInputs[i] !== expectedDigit) {
+      setAlertHeader('Error de Validación');
+      setAlertMessage(`El dígito en la posición ${randomNumbers[i] + 1} es incorrecto`);
+      setShowAlert(true);
+      return false;
     }
-    return true;
-  };
+  }
+  return true;
+};
+
 
   const registerAttendanceHandler = async () => {
     if (!validateInputs()) return;
     setIsLoading(true);
 
     try {
-      await registerAttendance(user!.record, userInputs.join(''));
-      setAlertHeader('¡Perfecto!');
-      setAlertMessage('Asistencia registrada correctamente');
-      setShowAlert(true);
+  await registerAttendance(user!.record, userInputs.join(''));
+  setAlertHeader('¡Perfecto!');
+  setAlertMessage('Asistencia registrada correctamente');
+  setShowAlert(true);
 
-      setUserInputs(['', '']);
-      generateRandomNumbers(user!.id);
-      setRefreshKey(k => k + 1);
-    } catch (error) {
-      setAlertHeader('Error');
-      setAlertMessage(error.message || 'Error al registrar asistencia');
-      setShowAlert(true);
-    } finally {
-      setIsLoading(false);
-    }
+  setUserInputs(['', '']);
+  generateRandomNumbers(user!.id.toString()); // <-- corregido
+  setRefreshKey(k => k + 1);
+} catch (error: unknown) {
+  setAlertHeader('Error');
+  if (error instanceof Error) {
+    setAlertMessage(error.message);
+  } else {
+    setAlertMessage('Error al registrar asistencia');
+  }
+  setShowAlert(true);
+} finally {
+  setIsLoading(false);
+}
+
+
   };
 
   const generateNewChallenge = () => {
-    if (user?.id) {
-      generateRandomNumbers(user.id);
-      setUserInputs(['', '']);
-    }
-  };
+  if (user?.id) {
+    generateRandomNumbers(user.id.toString());
+    setUserInputs(['', '']);
+  }
+};
+
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString('es-ES', {
@@ -170,6 +181,7 @@ const Home: React.FC = () => {
                 Salir
               </IonButton>
             </IonButtons>
+            
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
@@ -189,7 +201,7 @@ const Home: React.FC = () => {
     <IonPage>
       <IonHeader translucent>
         <IonToolbar>
-          <IonTitle>Panel de Asistencia</IonTitle>
+          <IonTitle>Registra tu Asistencia</IonTitle>
           <IonButtons slot="end">
             <IonButton 
               onClick={() => setConfirmLogout(true)} 
@@ -208,7 +220,7 @@ const Home: React.FC = () => {
         <div className="user-welcome">
           <div className="welcome-content">
             <IonAvatar className="user-avatar">
-              <IonIcon icon={personCircleOutline} />
+              <img src="../../public/assets/login.png" alt="Usuario" />
             </IonAvatar>
             <div className="welcome-text">
               <h1>¡Hola, {user.names?.split(' ')[0]}!</h1>
@@ -218,61 +230,44 @@ const Home: React.FC = () => {
         </div>
 
         <div className="content-container">
-          {/* Tarjeta de verificación */}
-          <IonCard className="verification-card">
-            <IonCardHeader>
-              <IonCardTitle>
-                <IonIcon icon={shieldCheckmarkOutline} />
-                Registro de Asistencia
-              </IonCardTitle>
-            </IonCardHeader>
-            <IonCardContent>
-              <div className="verification-intro">
-                <IonText color="medium">
-                  <p>Ingresa los dígitos solicitados de tu número de identificación:</p>
-                </IonText>
-              </div>
 
-              {randomNumbers.length === 2 && (
-                <div className="verification-inputs">
-                  <IonGrid>
-                    <IonRow>
-                      <IonCol>
-                        <div className="input-group">
-                          <IonLabel>Posición {randomNumbers[0] + 1}</IonLabel>
-                          <IonItem className="verification-input">
-                            <IonInput
-                              type="tel"
-                              maxlength={1}
-                              value={userInputs[0]}
-                              onIonInput={(e) => handleInputChange(0, e.detail.value!)}
-                              placeholder="?"
-                              className="digit-input"
-                            />
-                          </IonItem>
-                        </div>
-                      </IonCol>
-                      <IonCol>
-                        <div className="input-group">
-                          <IonLabel>Posición {randomNumbers[1] + 1}</IonLabel>
-                          <IonItem className="verification-input">
-                            <IonInput
-                              type="tel"
-                              maxlength={1}
-                              value={userInputs[1]}
-                              onIonInput={(e) => handleInputChange(1, e.detail.value!)}
-                              placeholder="?"
-                              className="digit-input"
-                            />
-                          </IonItem>
-                        </div>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </div>
-              )}
+            {/* Tarjeta de verificación */}
+            <IonCard className="verification-card">
+              <IonCardHeader>
+                <IonCardTitle>
+                  Registro de Asistencia
+                </IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonGrid>
+                  <IonRow>
+                    <IonCol>
+                      <IonItem className="verification-input">
+                        <IonInput
+                          type="tel"
+                          maxlength={1}
+                          value={userInputs[0]}
+                          onIonInput={(e) => handleInputChange(0, e.detail.value!)}
+                          className="digit-input"
+                          placeholder={`${randomNumbers[0] + 1}`} // muestra el número de posición
+                        />
+                      </IonItem>
+                    </IonCol>
+                    <IonCol>
+                      <IonItem className="verification-input">
+                        <IonInput
+                          type="tel"
+                          maxlength={1}
+                          value={userInputs[1]}
+                          onIonInput={(e) => handleInputChange(1, e.detail.value!)}
+                          className="digit-input"
+                          placeholder={`${randomNumbers[1] + 1}`} // muestra el número de posición
+                        />
+                      </IonItem>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
 
-              <div className="verification-actions">
                 <IonButton
                   expand="block"
                   onClick={registerAttendanceHandler}
@@ -286,15 +281,12 @@ const Home: React.FC = () => {
                       <span style={{ marginLeft: '8px' }}>Registrando...</span>
                     </>
                   ) : (
-                    <>
-                      <IonIcon icon={checkmarkCircleOutline} slot="start" />
-                      Registrar Asistencia
-                    </>
+                    'Registrar Asistencia'
                   )}
                 </IonButton>
-              </div>
-            </IonCardContent>
-          </IonCard>
+              </IonCardContent>
+            </IonCard>
+
 
           <AttendanceList refreshTrigger={refreshKey} />
         </div>

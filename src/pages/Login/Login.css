@@ -1,7 +1,7 @@
 /* Login.css */
 
 .login-content {
-  --background: linear-gradient(135deg, #545455 0%, #50435c 100%);
+  --background: #1c1c1c; /* fondo oscuro */
   --ion-safe-area-top: 0;
 }
 
@@ -18,21 +18,28 @@
 .login-header {
   text-align: center;
   margin-bottom: 30px;
-  color: white;
+  color: #fff; /* texto blanco */
 }
 
 .login-logo {
-  width: 80px;
-  height: 80px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1); /* un poco translúcido */
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
+
+.profile-img {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 
 .login-header h1 {
   font-size: 2.2rem;
@@ -52,9 +59,7 @@
   width: 100%;
   max-width: 400px;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: #2c2c2c; /* oscuro */
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -65,8 +70,8 @@
 .login-input {
   margin: 20px 0;
   border-radius: 12px;
-  background: rgba(248, 249, 252, 0.8);
-  border: 1px solid #e0e4e7;
+  background: #fff; /* inputs blancos */
+  border: 1px solid #ccc;
   transition: all 0.3s ease;
   --highlight-color: #667eea;
 }
@@ -77,14 +82,14 @@
 }
 
 .login-input.ion-focused {
-  background: white;
+  background: #fff;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 .login-input.ion-invalid {
   border-color: #dc3545;
-  background: rgba(220, 53, 69, 0.05);
+  background: #fff; /* mantener blanco aunque esté inválido */
 }
 
 .login-input ion-icon {
@@ -106,6 +111,7 @@
   display: block;
   margin: 5px 0 0 15px;
   font-size: 0.8rem;
+  color: #ff6b6b;
 }
 
 .login-button {
@@ -118,7 +124,9 @@
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0.5px;
+  color: #fff;
 }
+
 
 .login-button:not(.button-disabled):hover {
   --box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
@@ -177,4 +185,11 @@
 
 .login-header {
   animation: slideInUp 0.4s ease-out;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }

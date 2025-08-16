@@ -60,11 +60,13 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (event: CustomEvent) => {
-    if (event.detail.key === 'Enter' && isFormValid) {
-      onSubmit();
-    }
-  };
+ const handleKeyPress = (event: React.KeyboardEvent<HTMLIonInputElement>) => {
+  if (event.key === 'Enter' && isFormValid) {
+    onSubmit();
+  }
+};
+
+
 
   return (
     <IonPage>
@@ -79,7 +81,7 @@ const Login: React.FC = () => {
           
           <div className="login-header">
             <div className="login-logo">
-              <IonIcon icon={personOutline} size="large" />
+              <img src="../../public/assets/login.png" alt="Perfil" className="profile-img" />
             </div>
             <h1>Iniciar Sesión</h1>
             <p>Ingresa tus credenciales para continuar</p>
@@ -87,26 +89,24 @@ const Login: React.FC = () => {
 
           <IonCard className="login-card">
             <IonCardContent>
-              
+
               <IonItem 
                 lines="none" 
                 className={`login-input ${!isUserValid && user.length > 0 ? 'ion-invalid' : ''}`}
               >
-                <IonIcon icon={personOutline} slot="start" />
                 <IonInput
                   label="Usuario"
                   labelPlacement="stacked"
                   value={user}
                   onIonInput={e => setUser(e.detail.value ?? '')}
-                  onKeyDown={handleKeyPress}
+                  onKeyUp={handleKeyPress} 
                   placeholder="Ingresa tu usuario"
-                  clearInput
                   fill="outline"
-                  counter={true}
-                  maxlength={20}
+                  maxlength={20} // Máximo 20 caracteres
+                  clearInput={false} // Quitar el botón de limpiar
                 />
               </IonItem>
-              
+
               {!isUserValid && user.length > 0 && (
                 <IonText color="danger" className="error-text">
                   <small>El usuario debe tener al menos 3 caracteres</small>
@@ -117,9 +117,8 @@ const Login: React.FC = () => {
                 lines="none" 
                 className={`login-input ${!isPassValid && pass.length > 0 ? 'ion-invalid' : ''}`}
               >
-                <IonIcon icon={lockClosedOutline} slot="start" />
                 <IonInput
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   label="Contraseña"
                   labelPlacement="stacked"
                   value={pass}
@@ -127,15 +126,8 @@ const Login: React.FC = () => {
                   onKeyDown={handleKeyPress}
                   placeholder="Ingresa tu contraseña"
                   fill="outline"
+                  maxlength={10} // Máximo 10 caracteres
                 />
-                <IonButton 
-                  fill="clear" 
-                  slot="end" 
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="password-toggle"
-                >
-                  <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
-                </IonButton>
               </IonItem>
 
               <IonButton 
@@ -156,6 +148,7 @@ const Login: React.FC = () => {
               </IonButton>
 
             </IonCardContent>
+
           </IonCard>
         </div>
 
