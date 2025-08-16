@@ -77,13 +77,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
   };
 
   const formatTime = (timeString: string) => {
-    return timeString.substring(0, 5); // HH:MM
+    return timeString.substring(0, 5);
   };
 
   const getTimeColor = (time: string) => {
     const hour = parseInt(time.split(':')[0]);
-    if (hour < 8) return 'success';
-    if (hour < 9) return 'warning';
+    if (hour >= 15 && hour <= 18) return 'success';
+    if (hour > 18 && hour <= 21) return 'warning';
     return 'danger';
   };
 
@@ -118,7 +118,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
           </div>
         )}
 
-        {/* Estado de error */}
         {error && !isLoading && (
           <div className="error-state">
             <IonIcon icon={documentTextOutline} size="large" color="medium" />
@@ -132,7 +131,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
           </div>
         )}
 
-        {/* Estado vacío */}
         {!isLoading && !error && items.length === 0 && (
           <div className="empty-state">
             <IonIcon icon={listOutline} size="large" color="medium" />
@@ -143,7 +141,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
           </div>
         )}
 
-        {/* Lista de asistencias */}
         {!isLoading && !error && items.length > 0 && (
           <>
             <div className="attendance-summary">
@@ -176,7 +173,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
             </div>
 
             <IonList className="attendance-list">
-              {items.map((item, index) => (
+              {items.map((item) => (
                 <IonItemSliding key={item.record}>
                   <IonItem className="attendance-item">
                     <div className="attendance-content" slot="start">
@@ -221,7 +218,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({ refreshTrigger }) => {
           </>
         )}
 
-        {/* Botón de actualizar */}
         <div className="update-section">
           <IonButton
             expand="block"
